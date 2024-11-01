@@ -13,12 +13,13 @@ export default function Home() {
   const [extractedText, setExtractedText] = useState<string>("");
   const [isExtracting, setIsExtracting] = useState<boolean>(false);
   const [resetMenu, setResetMenu] = useState<boolean>(false);
+  const[uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setImagePreview(URL.createObjectURL(file));
-      extractText(file);
+      setUploadedFile(file);
     }
   };
 
@@ -41,19 +42,30 @@ export default function Home() {
     setIsExtracting(false);
   };
 
-  return (
-    <div className="h-screen flex flex-col items-center justify-around ">
+  const startImageExtraction = () => {
+    if(uploadedFile){
+      extractText(uploadedFile);
+    }
+  }
 
-      <div className="h-1/3 flex flex-col justify-center items-center gap-y-4">
-        <div className=" w-full text-8xl flex justify-center items-center text-white ">
+  const backToMenu = () => {
+    setUploadedFile(null);
+    setResetMenu(false);
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-around ">
+
+      <div className="h-1/3 flex flex-col justify-center items-center gap-y-6">
+        <div className=" w-full text-8xl flex justify-center items-center text-[#F4F6FF] font-bold ">
           Scanly
         </div>
-        <div className="text-white text-lg">
+        <div className="text-[#7C93C3] text-lg font-semibold">
             Get text from your images within a blink.
         </div>
       </div>
 
-      <div className="h-2/3 flex flex-col justify-center items-center gap-y-8">
+      <div className="h-2/3 flex flex-col justify-center items-center gap-y-8 ">
 
         {!resetMenu ? (
 
@@ -66,16 +78,17 @@ export default function Home() {
                 id="image-upload"
               />
               <label htmlFor="image-upload" className="cursor-pointer w-full">
-                <div className="w-80 h-14 border-2 border-dashed border-blue-400 rounded-md flex items-center justify-center bg-blue-900/50 hover:bg-blue-900/70 transition-colors">
+                <div className="w-80 h-14 border-2 border-dashed border-[#F4F6FF] rounded-md flex items-center justify-center transition-colors delay-75 ease-in bg-[#161235] hover:bg-[#201b49] ">
                   <div className="flex justify-center items-center gap-x-2 text-center">
-                    <Upload className="mx-auto h-8 w-8 text-blue-300" />
-                    <p className="mt-2 text-sm text-blue-300">Upload image</p>
+                    <Upload className="mx-auto h-6 w-6 text-[#7C93C3]" />
+                    <p className="text-sm text-[#7C93C3]">Upload image</p>
                   </div>
                 </div>
               </label>
               <Button
-                disabled={!imagePreview || isExtracting}
-                className="h-14 w-56 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+                disabled={ !uploadedFile || isExtracting}
+                className="h-14 w-56 transition-colors delay-75 ease-in bg-[#201b49] hover:bg-[#201b49ab] text-white rounded-md"
+                onClick={startImageExtraction}
               >
                 {isExtracting ? "Extracting..." : "Extract Text"}
               </Button>
@@ -86,28 +99,28 @@ export default function Home() {
         ( 
           <div className="flex flex-row gap-x-5 mx-10">
             
-            <div className=" flex flex-col justify-center items-center text-white text-lg gap-y-3 w-[30%] ">
+            <div className="flex flex-col justify-center items-center text-[#CBDCEB] font-semibold text-lg gap-y-3 w-[30%] ">
 
-              <p>Selected Image</p>
+              <p className="">Selected Image</p>
 
             {imagePreview ? (
               <img
                 src={imagePreview}
                 alt="Uploaded"
-                className="h-full w-full rounded-md object-contain"
+                className=" w-full rounded-md object-contain"
               />
             ) : (
               <></>
             )}
             </div>
             
-            <div className="w-[70%] flex flex-col justify-center items-center text-white text-lg gap-y-3">
+            <div className=" w-[70%] flex flex-col justify-center items-center text-[#CBDCEB] font-semibold text-lg gap-y-3">
               
-              <div>
+              <div className="">
                 Extracted Text
               </div>
 
-              <div className="h-full w-full p-3 border-2 border-white rounded-md text-white text-lg flex flex-col justify-center items-center font-normal">
+              <div className="h-full w-full p-3 bg-[#1a183d] rounded-md text-white text-base font-semibold flex flex-col justify-center items-center text-center">
                 {extractedText
                   ? extractedText
                   : "Upload an image to see extracted text"}
@@ -122,8 +135,8 @@ export default function Home() {
         {
           resetMenu && 
           <Button
-            className="h-12 w-56 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
-            onClick={ () => setResetMenu(false) }
+            className="h-12 w-56 delay-75 ease-in bg-[#161235] hover:bg-[#201b49] text-white rounded-md"
+            onClick={backToMenu}
           >
             Upload another image
           </Button>
@@ -132,32 +145,6 @@ export default function Home() {
     
       </div>
       
-      
-
-
-      {/* {resetMenu ? (
-        <div className="max-w-2xl text-white text-lg flex flex-col justify-center items-center font-semibold">
-          {extractedText
-            ? extractedText
-            : "Upload an image to see extracted text"}
-        </div>
-      ) : ( <></> )
-      } */}
     </div>
   );
-}
-
-{
-  /* <div className="mt-4">
-            <div className="flex items-center mb-2">
-              <FileText className="mr-2 h-5 w-5 text-blue-300" />
-              <h2 className="text-lg font-semibold">Extracted Text</h2>
-            </div>
-            <Textarea
-              value={extractedText}
-              readOnly
-              placeholder="Extracted text will appear here..."
-              className="w-full h-32 bg-blue-900/50 text-blue-50 placeholder-blue-300 resize-none"
-            />
-          </div> */
 }
